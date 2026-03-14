@@ -1,5 +1,11 @@
 function love.load()
+	love.window.setMode(1000, 768)
+
 	anim8 = require("library/anim8/anim8")
+	sti = require("library/Simple-Tiled-Implementation/sti")
+	cameraFile = require("library/hump/camera")
+
+	cam = cameraFile()
 
 	sprites = {}
 	sprites.playerSheet = love.graphics.newImage("sprites/playerSheet.png")
@@ -22,21 +28,30 @@ function love.load()
 
 	require("player")
 
-	platform = world:newRectangleCollider(250, 400, 300, 100, { collision_class = "Platform" })
-	platform:setType("static")
+	--dangerZone = world:newRectangleCollider(0, 550, 800, 50, { collision_class = "Danger" })
+	--dangerZone:setType("static")
 
-	dangerZone = world:newRectangleCollider(0, 550, 800, 50, { collision_class = "Danger" })
-	dangerZone:setType("static")
+	platforms = {}
+
+	loadMap()
 end
 
 function love.update(dt)
 	world:update(dt)
 	playerUpdate(dt)
+	gameMap:update(dt)
+
+	local px, py = player:getPosition()
+	cam:lookAt(px, love.graphics.getHeight()/2)
 end
 
 function love.draw()
-	world:draw()
-	playerDraw()
+	cam:attach()
+		gameMap:drawLayer(gameMap.layers["Tile Layer 1"])
+		world:draw()
+		playerDraw()
+	cam:detach()
+
 end
 
 function love.keypressed(key)
@@ -56,3 +71,18 @@ end
 	end
 end
 ]]
+
+function spawnPlatform(x, y, width, height)
+	if width > 0 and height > 0 then
+		local platform = world:newRectangleCollider(x, y, width, height, { collision_class = "Platform" })
+		platform:setType("static")
+		table.insert(platforms, platform)
+	end
+end
+
+function loadMap()
+	gameMap = sti("maps/level1.lua")
+	for i, obj in pairs(gameMap.layers["Platforms"].objects) do 
+		spawnPlatform(obj.x, obj.y, obj.width, obj.height)
+	end
+end
