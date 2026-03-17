@@ -219,20 +219,6 @@ return {
           properties = {}
         },
         {
-          id = 12,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 1920,
-          y = 256,
-          width = 64,
-          height = 64,
-          rotation = 0,
-          opacity = 1,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 13,
           name = "",
           type = "",
